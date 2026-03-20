@@ -1,0 +1,36 @@
+{
+  "name": "triapex-3d-store",
+  "version": "1.0.0",
+  "description": "Triapex Trading Group — 3D Printer E-Commerce Platform",
+  "private": true,
+  "author": "Triapex Trading Group",
+  "license": "MIT",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter backend dev\" \"pnpm --filter frontend dev\"",
+    "build": "pnpm --filter backend build && pnpm --filter frontend build",
+    "start": "concurrently \"pnpm --filter backend start\" \"pnpm --filter frontend start\"",
+    "lint": "pnpm --filter frontend lint && pnpm --filter backend lint",
+    "test": "pnpm --filter backend test",
+    "test:watch": "pnpm --filter backend test:watch",
+    "db:migrate": "pnpm --filter backend prisma:migrate",
+    "db:seed": "pnpm --filter backend prisma:seed",
+    "db:studio": "pnpm --filter backend prisma:studio",
+    "db:reset": "pnpm --filter backend prisma:reset",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "clean": "rimraf node_modules frontend/node_modules backend/node_modules frontend/.next backend/dist"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "^3.2.5",
+    "rimraf": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}
