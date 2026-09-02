@@ -7,6 +7,9 @@ import { createOrderSchema, updateOrderStatusSchema } from '../schemas/order.sch
 
 const router = Router()
 
+// Public routes
+router.get('/track/:orderNumber', (req, res, next) => orderController.track(req, res, next))
+
 router.use(authenticate)
 
 // User routes

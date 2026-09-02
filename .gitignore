@@ -18,6 +18,9 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
+.env.development
+.env.test
 
 # Logs
 npm-debug.log*
@@ -41,3 +44,12 @@ seed_error.txt
 # Prisma
 /backend/src/prisma/dev.db
 /backend/src/prisma/dev.db-journal
+
+# Local scratch & debug helpers (may contain real API keys)
+scratch/
+*.tsbuildinfo
+backend/test_models.ts
+backend/check_admin.js
+backend/check_password.js
+backend/check_chrome_runtime.js
+backend/src/test_gemini.js

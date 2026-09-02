@@ -26,7 +26,7 @@ api.interceptors.response.use(
         const originalRequest = error.config
 
         // Prevent infinite loops if the refresh or logout endpoints themselves fail
-        if (originalRequest.url?.includes('/auth/refresh') || originalRequest.url?.includes('/auth/logout')) {
+        if (originalRequest.url?.includes('/auth/refresh') || originalRequest.url?.includes('/auth/logout') || originalRequest.url?.includes('/auth/login')) {
             return Promise.reject(error)
         }
 
@@ -34,9 +34,10 @@ api.interceptors.response.use(
             originalRequest._retry = true
             try {
                 const { data } = await api.post('/auth/refresh')
-                if (data.success && data.accessToken) {
-                    localStorage.setItem('accessToken', data.accessToken)
-                    originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
+                if (data.success && (data.accessToken || data.data?.accessToken)) {
+                    const newToken = data.accessToken || data.data.accessToken
+                    localStorage.setItem('accessToken', newToken)
+                    originalRequest.headers.Authorization = `Bearer ${newToken}`
                     return api(originalRequest)
                 }
             } catch (refreshError) {

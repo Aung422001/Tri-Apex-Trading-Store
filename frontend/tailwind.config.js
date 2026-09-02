@@ -3,9 +3,23 @@ module.exports = {
     content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
     theme: {
         extend: {
+            fontFamily: {
+                display: ['var(--font-display)', 'sans-serif'],
+                body: ['var(--font-body)', 'sans-serif'],
+                mono: ['var(--font-mono)', 'monospace'],
+                sans: ['var(--font-body)', 'sans-serif'], // fallback for generic tailwind usage
+            },
+            fontSize: {
+                'display-xl': ['clamp(64px, 10vw, 160px)', { lineHeight: '0.92', letterSpacing: '-0.02em' }],
+                'display-lg': ['clamp(48px, 7vw, 96px)', { lineHeight: '0.95', letterSpacing: '-0.01em' }],
+                'display-md': ['clamp(32px, 5vw, 64px)', { lineHeight: '1.0' }],
+                'label': ['11px', { lineHeight: '1', letterSpacing: '0.12em', textTransform: 'uppercase' }],
+            },
             colors: {
                 primary: {
                     DEFAULT: '#1E3A5F',
+                    dark: '#0D1B2E',
+                    light: '#2D5280',
                     50: '#EBF0F5',
                     100: '#D0DCE8',
                     200: '#A1B9D1',
@@ -19,6 +33,7 @@ module.exports = {
                 },
                 accent: {
                     DEFAULT: '#F97316',
+                    dark: '#E05D05',
                     50: '#FFF3E8',
                     100: '#FFE5CC',
                     200: '#FFCB99',
@@ -30,12 +45,36 @@ module.exports = {
                     800: '#702E03',
                     900: '#381701',
                 },
+                navy: {
+                    DEFAULT: '#1E3A5F',
+                    dark: '#0D1B2E',
+                    light: '#2D5280',
+                    50: '#EBF0F5',
+                },
+                orange: {
+                    DEFAULT: '#F97316',
+                    dark: '#E05D05',
+                },
+                canvas: '#F8F5F0',
+                ink: '#1A1A2E',
                 success: '#22C55E',
                 warning: '#EAB308',
                 danger: '#EF4444',
             },
-            fontFamily: {
-                sans: ['Inter', 'system-ui', 'sans-serif'],
+            boxShadow: {
+                'navy-sm': '0 2px 8px rgba(30,58,95,0.08)',
+                'navy-md': '0 4px 24px rgba(30,58,95,0.14)',
+                'navy-lg': '0 8px 48px rgba(30,58,95,0.20)',
+                'orange': '0 4px 24px rgba(249,115,22,0.30)',
+                'hard': '4px 4px 0px #1E3A5F',
+                'hard-orange': '4px 4px 0px #F97316',
+            },
+            borderRadius: {
+                DEFAULT: '2px',
+                sm: '2px',
+                md: '4px',
+                lg: '8px',
+                none: '0',
             },
             animation: {
                 'shimmer': 'shimmer 2s infinite linear',
@@ -44,6 +83,10 @@ module.exports = {
                 'slide-down': 'slideDown 0.3s ease-out',
                 'fade-in': 'fadeIn 0.5s ease-out',
                 'scale-in': 'scaleIn 0.3s ease-out',
+                'slide-up-fade': 'slideUpFade 0.5s ease forwards',
+                'count-up': 'countUp 1s ease-out forwards',
+                'draw-line': 'drawLine 0.6s ease forwards',
+                'grain': 'grain 8s steps(10) infinite',
             },
             keyframes: {
                 shimmer: {
@@ -69,6 +112,22 @@ module.exports = {
                 scaleIn: {
                     '0%': { transform: 'scale(0.95)', opacity: '0' },
                     '100%': { transform: 'scale(1)', opacity: '1' },
+                },
+                slideUpFade: {
+                    '0%': { opacity: '0', transform: 'translateY(24px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' },
+                },
+                drawLine: {
+                    '0%': { transform: 'scaleX(0)', transformOrigin: 'left' },
+                    '100%': { transform: 'scaleX(1)', transformOrigin: 'left' },
+                },
+                grain: {
+                    '0%, 100%': { transform: 'translate(0, 0)' },
+                    '10%': { transform: 'translate(-2%, -3%)' },
+                    '20%': { transform: 'translate(3%, 2%)' },
+                    '30%': { transform: 'translate(-1%, 4%)' },
+                    '40%': { transform: 'translate(4%, -1%)' },
+                    '50%': { transform: 'translate(-3%, 3%)' },
                 },
             },
         },

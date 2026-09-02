@@ -59,10 +59,14 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
 
     // Unknown errors
     console.error('❌ Unhandled error:', err)
+    
+    // SECURITY: Ensure no internal metadata is leaked for unknown errors
+    const errorMessage = process.env.NODE_ENV === 'production'
+        ? 'Internal server error'
+        : err.message.replace(/PrismaClient|prisma/gi, 'Database')
+    
     return res.status(500).json({
         success: false,
-        error: process.env.NODE_ENV === 'production'
-            ? 'Internal server error'
-            : err.message,
+        error: errorMessage,
     })
 }

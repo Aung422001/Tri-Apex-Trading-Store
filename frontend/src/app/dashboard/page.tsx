@@ -16,7 +16,10 @@ export default function DashboardPage() {
         async function fetchOrders() {
             try {
                 const { data } = await api.get('/orders?limit=5')
-                if (data.success) setOrders(data.data)
+                if (data.success) {
+                    const activeOrders = data.data.filter((o: any) => o.status !== 'CANCELLED')
+                    setOrders(activeOrders)
+                }
             } catch { } finally { setLoading(false) }
         }
         fetchOrders()

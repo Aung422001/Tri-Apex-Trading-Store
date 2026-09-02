@@ -67,13 +67,24 @@ export class OrderService {
 
         const total = subtotal - discount + shippingCost
 
+        // Handle address
+        let finalAddressId = data.addressId
+        if (data.address && !finalAddressId) {
+            const newAddress = await prisma.address.create({
+                data: { ...data.address, userId }
+            })
+            finalAddressId = newAddress.id
+        }
+
+        if (!finalAddressId) throw new AppError(400, 'Address is required')
+
         // Create order in transaction
         const order = await prisma.$transaction(async (tx) => {
             const ord = await tx.order.create({
                 data: {
                     orderNumber: `TRX-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`,
                     userId,
-                    addressId: data.addressId,
+                    addressId: finalAddressId as string,
                     subtotal,
                     discount,
                     shippingCost,
@@ -171,6 +182,7 @@ export class OrderService {
             prisma.order.findMany({
                 include: {
                     user: { select: { id: true, name: true, email: true } },
+                    address: true,
                     items: { include: { product: { select: { name: true } } } },
                 },
                 orderBy: { createdAt: 'desc' },
@@ -180,6 +192,34 @@ export class OrderService {
             prisma.order.count(),
         ])
         return { orders, total, page, limit, totalPages: Math.ceil(total / limit) }
+    }
+
+    /** Public: Track order by number */
+    async trackOrder(orderNumber: string) {
+        const order = await prisma.order.findUnique({
+            where: { orderNumber },
+            include: {
+                address: { select: { city: true, state: true, country: true } },
+                items: {
+                    include: {
+                        product: { select: { name: true, images: { take: 1 } } }
+                    }
+                }
+            }
+        })
+
+        if (!order) throw new AppError(404, 'Order not found')
+
+        // Return limited info for public tracking
+        return {
+            orderNumber: order.orderNumber,
+            status: order.status,
+            trackingNumber: order.trackingNumber,
+            createdAt: order.createdAt,
+            updatedAt: order.updatedAt,
+            items: order.items,
+            location: order.address ? `${order.address.city}, ${order.address.state}` : 'N/A'
+        }
     }
 
     /** Admin: Update order status */

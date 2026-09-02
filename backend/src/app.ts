@@ -9,6 +9,7 @@ import { errorHandler } from './middleware/errorHandler'
 import { apiLimiter } from './middleware/rateLimiter'
 
 const app = express()
+app.disable('x-powered-by')
 
 // Security
 app.use(helmet())

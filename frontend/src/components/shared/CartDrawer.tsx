@@ -8,7 +8,7 @@ import { formatPrice } from '@/lib/utils'
 export default function CartDrawer() {
     const { items, isOpen, toggleDrawer, updateQuantity, removeItem } = useCartStore()
     const subtotal = useCartStore((s) => s.subtotal())
-    const shipping = subtotal >= 500 ? 0 : 15
+    const shipping = subtotal >= 800000 ? 0 : 15000
 
     return (
         <>

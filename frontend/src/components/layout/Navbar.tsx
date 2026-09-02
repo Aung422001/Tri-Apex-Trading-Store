@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
-import { ShoppingCart, Search, Menu, X, ChevronDown } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ShoppingCart, Search, Menu, X } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
 import { useAuthStore } from '@/store/authStore'
 
@@ -11,6 +11,7 @@ export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false)
     const [searchOpen, setSearchOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
+    const [isScrolled, setIsScrolled] = useState(false)
     const cartItems = useCartStore((s) => s.items)
     const toggleDrawer = useCartStore((s) => s.toggleDrawer)
     const user = useAuthStore((s) => s.user)
@@ -18,74 +19,84 @@ export default function Navbar() {
 
     const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
 
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 80)
+        }
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
+
     const navLinks = [
         { label: 'Products', href: '/products' },
         { label: 'FDM Printers', href: '/products?category=fdm-printers' },
         { label: 'Resin Printers', href: '/products?category=resin-printers' },
         { label: 'Filaments', href: '/products?category=filaments' },
+        { label: 'Track Order', href: '/track-order' },
         { label: 'Blog', href: '/blog' },
         { label: 'Contact', href: '/contact' },
     ]
 
-    return (
-        <header className="sticky top-0 z-50 glass border-b border-gray-200/50">
-            {/* Top bar */}
-            <div className="bg-primary text-white text-xs py-1.5">
-                <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
-                    <span>🚚 Free shipping on orders over MMK 50000</span>
-                    <span className="hidden sm:block">📞 +95 944 999 7080 | kht@triapextradinggroupmm.com</span>
-                </div>
-            </div>
+    const headerClass = isScrolled
+        ? 'bg-navy text-white transition-colors duration-300'
+        : 'bg-canvas text-navy transition-colors duration-300'
 
+    return (
+        <header className={`sticky top-0 z-50 border-b border-[rgba(30,58,95,0.12)] ${headerClass}`}>
             {/* Main nav */}
             <div className="max-w-7xl mx-auto px-4">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2 group">
+                    <Link href="/" className="flex items-center gap-2">
                         <Image
                             src="/logo.png"
                             width={40}
                             height={40}
                             alt="Triapex Trading Group Logo"
-                            className="rounded-xl group-hover:scale-105 transition-transform"
+                            className="rounded-none border-2 border-navy bg-white"
                         />
                         <div className="hidden sm:block">
-                            <div className="font-bold text-primary text-lg leading-tight">Triapex</div>
-                            <div className="text-[10px] text-gray-500 -mt-0.5">TRADING GROUP</div>
+                            <div className="font-display font-[900] text-2xl leading-none tracking-tight uppercase">
+                                TRIAPEX
+                            </div>
+                            <div className="text-[10px] text-orange tracking-[0.2em] font-bold mt-1 leading-none uppercase">
+                                TRADING GROUP
+                            </div>
                         </div>
                     </Link>
 
                     {/* Desktop nav links */}
-                    <nav className="hidden lg:flex items-center gap-1">
+                    <nav className="hidden lg:flex items-center gap-6">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent rounded-lg hover:bg-accent/5 transition-all"
+                                className="relative text-sm font-medium pb-1 group"
                             >
                                 {link.label}
+                                <span className="absolute bottom-0 left-0 w-full h-[3px] bg-orange origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"></span>
                             </Link>
                         ))}
                     </nav>
 
                     {/* Right side */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-4">
                         {/* Search */}
                         <button
                             onClick={() => setSearchOpen(!searchOpen)}
-                            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                            className="hover:text-orange transition-colors"
                         >
-                            <Search className="w-5 h-5 text-gray-600" />
+                            <Search className="w-5 h-5" />
                         </button>
 
                         {/* Cart */}
                         <button
                             onClick={toggleDrawer}
-                            className="relative p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                            className="relative hover:text-orange transition-colors"
                         >
-                            <ShoppingCart className="w-5 h-5 text-gray-600" />
+                            <ShoppingCart className="w-5 h-5" />
                             {totalItems > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-scale-in">
+                                <span className="absolute -top-2 -right-2 w-5 h-5 bg-navy border-2 border-orange text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                                     {totalItems}
                                 </span>
                             )}
@@ -94,27 +105,26 @@ export default function Navbar() {
                         {/* User */}
                         {user ? (
                             <div className="relative group">
-                                <button className="flex items-center gap-1.5 p-2 hover:bg-gray-100 rounded-xl transition-colors">
-                                    <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center">
-                                        <span className="text-white text-xs font-bold">{user.name[0]}</span>
+                                <button className="flex items-center gap-1.5 focus:outline-none">
+                                    <div className={`w-8 h-8 flex items-center justify-center font-bold text-sm ${isScrolled ? 'bg-white text-navy' : 'bg-navy text-white'}`}>
+                                        {user.name[0]}
                                     </div>
-                                    <ChevronDown className="w-3 h-3 text-gray-400" />
                                 </button>
-                                <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-1">
-                                    <div className="px-3 py-2 border-b border-gray-100">
-                                        <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                                        <p className="text-xs text-gray-500">{user.email}</p>
+                                <div className="absolute right-0 top-full mt-2 w-48 bg-white border-2 border-navy text-navy shadow-hard invisible group-hover:visible transition-all duration-200">
+                                    <div className="px-4 py-3 border-b border-[rgba(30,58,95,0.12)]">
+                                        <p className="text-sm font-bold uppercase">{user.name}</p>
+                                        <p className="text-xs opacity-70">{user.email}</p>
                                     </div>
-                                    <Link href="/dashboard" className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Dashboard</Link>
-                                    <Link href="/dashboard/orders" className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">My Orders</Link>
+                                    <Link href="/dashboard" className="block px-4 py-2 text-sm hover:bg-orange hover:text-white font-bold uppercase tracking-wider">Dashboard</Link>
+                                    <Link href="/dashboard/orders" className="block px-4 py-2 text-sm hover:bg-orange hover:text-white font-bold uppercase tracking-wider">My Orders</Link>
                                     {user.role === 'ADMIN' && (
-                                        <Link href="/admin" className="block px-3 py-2 text-sm text-accent font-medium hover:bg-orange-50">Admin Panel</Link>
+                                        <Link href="/admin" className="block px-4 py-2 text-sm text-orange hover:bg-orange hover:text-white font-bold uppercase tracking-wider">Admin Panel</Link>
                                     )}
-                                    <button onClick={logout} className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50">Logout</button>
+                                    <button onClick={logout} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-600 hover:text-white font-bold uppercase tracking-wider">Logout</button>
                                 </div>
                             </div>
                         ) : (
-                            <Link href="/login" className="btn-primary text-sm py-2 px-4">
+                            <Link href="/login" className={`hidden lg:block border-2 ${isScrolled ? 'border-white hover:bg-white hover:text-navy' : 'border-navy hover:bg-navy hover:text-white'} text-sm font-bold px-4 py-2 uppercase tracking-wide transition-colors`}>
                                 Sign In
                             </Link>
                         )}
@@ -122,9 +132,9 @@ export default function Navbar() {
                         {/* Mobile menu toggle */}
                         <button
                             onClick={() => setMobileOpen(!mobileOpen)}
-                            className="lg:hidden p-2 hover:bg-gray-100 rounded-xl"
+                            className="lg:hidden hover:text-orange"
                         >
-                            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
                     </div>
                 </div>
@@ -132,37 +142,47 @@ export default function Navbar() {
 
             {/* Search bar */}
             {searchOpen && (
-                <div className="border-t border-gray-100 animate-slide-down">
-                    <div className="max-w-7xl mx-auto px-4 py-3">
-                        <form action="/products" className="relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <div className="border-t border-[rgba(30,58,95,0.12)] bg-canvas text-navy absolute w-full animate-slide-down">
+                    <div className="max-w-7xl mx-auto px-4 py-4">
+                        <form action="/products" className="relative flex">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-navy opacity-50" />
                             <input
                                 name="search"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search 3D printers, filaments, accessories..."
-                                className="input-field pl-12 pr-4"
+                                placeholder="SEARCH CATALOG..."
+                                className="w-full bg-transparent border-2 border-navy pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-orange font-bold uppercase"
                                 autoFocus
                             />
+                            <button type="submit" className="bg-orange text-white px-6 font-bold uppercase tracking-wider hover:bg-navy transition-colors">Search</button>
                         </form>
                     </div>
                 </div>
             )}
 
-            {/* Mobile menu */}
+            {/* Full Screen Mobile menu */}
             {mobileOpen && (
-                <div className="lg:hidden border-t border-gray-100 animate-slide-down">
-                    <nav className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-1">
+                <div className="fixed inset-0 top-16 z-40 bg-navy text-white animate-slide-down overflow-y-auto">
+                    <nav className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] gap-6 p-4">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.href}
                                 href={link.href}
                                 onClick={() => setMobileOpen(false)}
-                                className="px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl"
+                                className="font-display font-bold text-4xl uppercase tracking-wider hover:text-orange transition-colors"
                             >
                                 {link.label}
                             </Link>
                         ))}
+                        {!user && (
+                            <Link 
+                                href="/login"
+                                onClick={() => setMobileOpen(false)} 
+                                className="mt-8 border-2 border-white px-8 py-3 font-display font-bold text-2xl uppercase tracking-wider hover:bg-white hover:text-navy transition-colors"
+                            >
+                                Sign In
+                            </Link>
+                        )}
                     </nav>
                 </div>
             )}

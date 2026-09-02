@@ -7,7 +7,10 @@ async function main() {
     console.log('🌱 Seeding database...')
 
     // Create admin user
-    const adminPassword = await bcrypt.hash('ChangeThisPassword123!', 12)
+    // Honour ADMIN_DEFAULT_PASSWORD so a deployed site never ships with the
+    // password that is printed in this repo.
+    const adminPlain = process.env.ADMIN_DEFAULT_PASSWORD || 'ChangeThisPassword123!'
+    const adminPassword = await bcrypt.hash(adminPlain, 12)
     const admin = await prisma.user.upsert({
         where: { email: 'admin@triapextrading.com' },
         update: {},
@@ -395,7 +398,9 @@ async function main() {
     console.log('✅ Blog posts created')
 
     console.log('\n🎉 Seed complete!')
-    console.log('  Admin: admin@triapextrading.com / ChangeThisPassword123!')
+    console.log(
+        `  Admin: admin@triapextrading.com / ${process.env.ADMIN_DEFAULT_PASSWORD ? '<ADMIN_DEFAULT_PASSWORD>' : 'ChangeThisPassword123!'}`
+    )
     console.log('  User:  demo@triapextrading.com / User12345!')
 }
 

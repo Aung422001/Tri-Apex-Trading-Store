@@ -99,7 +99,7 @@ export default function ContactPage() {
                             <h3 className="font-bold text-primary mb-4 flex items-center gap-2"><HelpCircle className="w-5 h-5 text-accent" /> Frequently Asked</h3>
                             {[
                                 { q: 'What is your return policy?', a: 'We accept returns within 14 days of delivery for unused items.' },
-                                { q: 'Do you ship internationally?', a: 'Currently, we ship within Malaysia. International shipping coming soon!' },
+                                { q: 'Do you ship internationally?', a: 'Currently, we ship within Myanmar. International shipping coming soon!' },
                                 { q: 'Do you offer warranty?', a: 'Yes, all printers come with a minimum 1-year manufacturer warranty.' },
                             ].map((faq) => (
                                 <div key={faq.q} className="mb-3 last:mb-0">

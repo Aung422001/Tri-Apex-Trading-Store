@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
-import { aiService } from '../services/ai.service'
+import { aiService, toAiError } from '../services/ai.service'
+import { priceComparisonService } from '../services/price-comparison.service'
 import { sendSuccess, sendError } from '../utils/apiResponse'
 
 export class AIController {
@@ -7,11 +8,9 @@ export class AIController {
         try {
             const recommendations = await aiService.getRecommendations(req.body)
             sendSuccess(res, recommendations)
-        } catch (err: any) {
-            if (err.message?.includes('not configured')) {
-                return sendError(res, 'AI service not available', 503)
-            }
-            next(err)
+        } catch (err) {
+            const appErr = toAiError(err)
+            sendError(res, appErr.message, appErr.statusCode)
         }
     }
 
@@ -22,13 +21,19 @@ export class AIController {
 
             const response = await aiService.chat(message, history)
             sendSuccess(res, { reply: response })
-        } catch (err: any) {
-            if (err.message?.includes('not configured')) {
+        } catch (err) {
+            // Chat always answers with a friendly reply — a support widget that
+            // renders an HTTP error is worse than one that hands over a phone number.
+            const { statusCode } = toAiError(err)
+
+            if (statusCode === 429) {
                 return sendSuccess(res, {
-                    reply: "I'm currently unavailable. Please contact kht@triapextradinggroupmm.com for assistance.",
+                    reply: "I'm handling too many requests right now! Please wait a moment and try again.",
                 })
             }
-            next(err)
+            return sendSuccess(res, {
+                reply: "Hi! I'm currently offline for maintenance. Please contact kht@triapextradinggroupmm.com or call +95 944 999 7080 for assistance.",
+            })
         }
     }
 
@@ -37,11 +42,9 @@ export class AIController {
             const { productIds } = req.body
             const comparison = await aiService.compareProducts(productIds)
             sendSuccess(res, comparison)
-        } catch (err: any) {
-            if (err.message?.includes('not configured')) {
-                return sendError(res, 'AI service not available', 503)
-            }
-            next(err)
+        } catch (err) {
+            const appErr = toAiError(err)
+            sendError(res, appErr.message, appErr.statusCode)
         }
     }
 
@@ -49,11 +52,9 @@ export class AIController {
         try {
             const description = await aiService.generateDescription(req.body)
             sendSuccess(res, description)
-        } catch (err: any) {
-            if (err.message?.includes('not configured')) {
-                return sendError(res, 'AI service not available', 503)
-            }
-            next(err)
+        } catch (err) {
+            const appErr = toAiError(err)
+            sendError(res, appErr.message, appErr.statusCode)
         }
     }
 
@@ -64,10 +65,20 @@ export class AIController {
 
             const analysis = await aiService.analyzeImage(imageBase64, mimeType)
             sendSuccess(res, analysis)
-        } catch (err: any) {
-            if (err.message?.includes('not configured')) {
-                return sendError(res, 'AI service not available', 503)
+        } catch (err) {
+            const appErr = toAiError(err)
+            sendError(res, appErr.message, appErr.statusCode)
+        }
+    }
+    async priceCompare(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { productName, ourPrice, currency } = req.body
+            if (!productName || ourPrice === undefined) {
+                return sendError(res, 'productName and ourPrice are required', 400)
             }
+            const result = await priceComparisonService.comparePrice(productName, Number(ourPrice), currency)
+            sendSuccess(res, result)
+        } catch (err) {
             next(err)
         }
     }

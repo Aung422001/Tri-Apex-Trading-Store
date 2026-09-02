@@ -3,28 +3,41 @@ import { env } from './env'
 
 let redis: Redis | null = null
 
-try {
-    redis = new Redis(env.REDIS_URL, {
-        maxRetriesPerRequest: 3,
-        retryStrategy(times) {
-            if (times > 3) {
-                console.warn('⚠️ Redis connection failed, running without cache')
-                return null
-            }
-            return Math.min(times * 200, 2000)
-        },
-        lazyConnect: true,
-    })
+// No REDIS_URL means no cache at all. Construct nothing in that case —
+// otherwise every cacheGet pays for a refused TCP connection before falling
+// through to the database.
+if (!env.REDIS_URL) {
+    console.log('ℹ️  REDIS_URL not set — running without cache')
+} else {
+    try {
+        redis = new Redis(env.REDIS_URL, {
+            maxRetriesPerRequest: 3,
+            retryStrategy(times) {
+                if (times > 3) {
+                    console.warn('⚠️ Redis connection failed, running without cache')
+                    return null
+                }
+                return Math.min(times * 200, 2000)
+            },
+            lazyConnect: true,
+        })
 
-    redis.on('error', (err) => {
-        console.warn('⚠️ Redis error:', err.message)
-    })
+        // ioredis re-emits on every retry and connection errors often carry an
+        // empty message — log once, with a code to actually identify the failure.
+        let errorLogged = false
+        redis.on('error', (err: NodeJS.ErrnoException) => {
+            if (errorLogged) return
+            errorLogged = true
+            console.warn('⚠️ Redis error:', err.message || err.code || String(err))
+        })
 
-    redis.on('connect', () => {
-        console.log('✅ Redis connected')
-    })
-} catch (err) {
-    console.warn('⚠️ Redis not available, running without cache')
+        redis.on('connect', () => {
+            errorLogged = false
+            console.log('✅ Redis connected')
+        })
+    } catch (err) {
+        console.warn('⚠️ Redis not available, running without cache')
+    }
 }
 
 /** Cache helper — get from cache or execute fn and cache the result */

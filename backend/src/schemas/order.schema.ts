@@ -1,10 +1,26 @@
 import { z } from 'zod'
 
 export const createOrderSchema = z.object({
-    addressId: z.string().min(1, 'Shipping address is required'),
+    addressId: z.string().optional(),
+    address: z.object({
+        fullName: z.string().min(2),
+        phone: z.string().min(5),
+        street: z.string().min(5),
+        city: z.string().min(2),
+        state: z.string().min(2),
+        postalCode: z.string().min(3),
+        country: z.string().default('Malaysia'),
+    }).optional(),
     couponCode: z.string().optional(),
     notes: z.string().optional(),
     shippingMethod: z.enum(['standard', 'express']).default('standard'),
+}).refine(data => data.addressId || data.address, {
+    message: "Either addressId or a new address must be provided",
+    path: ["address"]
+})
+
+export const trackOrderSchema = z.object({
+    orderNumber: z.string().min(5, 'Order number is required'),
 })
 
 export const updateOrderStatusSchema = z.object({

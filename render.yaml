@@ -1,0 +1,128 @@
+# Render Blueprint — Triapex Trading Group
+# Deploy with: Render Dashboard → New → Blueprint → pick this repo.
+# Docs: https://render.com/docs/blueprint-spec
+#
+#   https://triapextradinggroupmm.com       → triapex-web  (frontend)
+#   https://www.triapextradinggroupmm.com   → triapex-web  (redirects to apex)
+#   https://api.triapextradinggroupmm.com   → triapex-api  (backend)
+
+services:
+  # ─────────────────────────────────────────────────────────
+  # Backend API (Express + Prisma + SQLite on a persistent disk)
+  # ─────────────────────────────────────────────────────────
+  - type: web
+    name: triapex-api
+    runtime: node
+    # A persistent disk is NOT available on the free plan. Starter is the
+    # minimum. The disk also pins this service to a single instance.
+    plan: starter
+    region: singapore
+    branch: master
+
+    domains:
+      - api.triapextradinggroupmm.com
+
+    # backend's build script runs `prisma generate` itself, from the backend
+    # directory — running it from the repo root leaves the stub client in place
+    # and tsc then fails on every generated Prisma type.
+    buildCommand: >-
+      corepack enable &&
+      pnpm install --frozen-lockfile &&
+      pnpm --filter backend build
+    startCommand: pnpm --filter backend start:prod
+    healthCheckPath: /health
+
+    # The SQLite file lives here so it survives deploys and restarts.
+    disk:
+      name: triapex-sqlite
+      mountPath: /var/data
+      sizeGB: 1
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:/var/data/prod.db
+      - key: API_PREFIX
+        value: /api/v1
+
+      - key: API_URL
+        value: https://api.triapextradinggroupmm.com
+      - key: APP_URL
+        value: https://triapextradinggroupmm.com
+      # Both hostnames — a request from www is a different origin to the browser.
+      - key: CORS_ORIGIN
+        value: https://triapextradinggroupmm.com,https://www.triapextradinggroupmm.com
+
+      # Chromium is ~150MB and won't run reliably on a 512MB Starter instance,
+      # so the AI price-comparison scraper is disabled in production.
+      - key: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
+        value: "1"
+
+      # Generated once by Render and kept stable across deploys.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: COOKIE_SECRET
+        generateValue: true
+
+      - key: EMAIL_FROM
+        value: noreply@triapextradinggroupmm.com
+      - key: ADMIN_EMAIL
+        value: kht@triapextradinggroupmm.com
+
+      # Secrets — set in the dashboard, never in this file.
+      - key: ADMIN_DEFAULT_PASSWORD
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+
+  # ─────────────────────────────────────────────────────────
+  # Frontend (Next.js)
+  # ─────────────────────────────────────────────────────────
+  - type: web
+    name: triapex-web
+    runtime: node
+    plan: free
+    region: singapore
+    branch: master
+
+    domains:
+      - triapextradinggroupmm.com
+      - www.triapextradinggroupmm.com
+
+    buildCommand: >-
+      corepack enable &&
+      pnpm install --frozen-lockfile &&
+      pnpm --filter frontend build
+    startCommand: pnpm --filter frontend start
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # NEXT_PUBLIC_* values are baked into the JS bundle at BUILD time, so
+      # changing one needs "Clear build cache & deploy", not just a restart.
+      # They also drive the CSP connect-src in next.config.js.
+      - key: NEXT_PUBLIC_API_URL
+        value: https://api.triapextradinggroupmm.com/api/v1
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://triapextradinggroupmm.com
+      - key: NEXT_PUBLIC_APP_NAME
+        value: Triapex Trading Group

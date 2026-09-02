@@ -1,7 +1,9 @@
 import { z } from 'zod'
+import path from 'path'
 import dotenv from 'dotenv'
 
-dotenv.config()
+// Load .env from backend root
+dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 
 const envSchema = z.object({
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -15,12 +17,12 @@ const envSchema = z.object({
     DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
 
     // Redis
-    REDIS_URL: z.string().default('redis://localhost:6379'),
+    REDIS_URL: z.string().optional(),
     REDIS_TTL_DEFAULT: z.coerce.number().default(300),
 
     // JWT
     JWT_SECRET: z.string().min(10, 'JWT_SECRET must be at least 10 characters'),
-    JWT_EXPIRES_IN: z.string().default('15m'),
+    JWT_EXPIRES_IN: z.string().default('7d'),
     JWT_REFRESH_SECRET: z.string().min(10, 'JWT_REFRESH_SECRET must be at least 10 characters'),
     JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
     COOKIE_SECRET: z.string().default('triapex-cookie-secret'),
@@ -31,15 +33,18 @@ const envSchema = z.object({
 
     // Gemini AI
     GEMINI_API_KEY: z.string().optional(),
-    GEMINI_MODEL_FLASH: z.string().default('gemini-1.5-flash'),
-    GEMINI_MODEL_PRO: z.string().default('gemini-1.5-pro'),
+    ANTHROPIC_API_KEY: z.string().optional(),
+    GEMINI_MODEL_FLASH: z.string().default('gemini-2.5-flash'),
+    // gemini-2.0-flash 404s on the current API key — don't default to a model
+    // that isn't reachable.
+    GEMINI_MODEL_PRO: z.string().default('gemini-2.5-flash'),
     GEMINI_MAX_TOKENS: z.coerce.number().default(1024),
     GEMINI_TEMPERATURE: z.coerce.number().default(0.7),
 
     // Stripe
     STRIPE_SECRET_KEY: z.string().optional(),
     STRIPE_WEBHOOK_SECRET: z.string().optional(),
-    STRIPE_CURRENCY: z.string().default('myr'),
+    STRIPE_CURRENCY: z.string().default('mmk'),
 
     // Cloudinary
     CLOUDINARY_CLOUD_NAME: z.string().optional(),
@@ -63,9 +68,9 @@ const envSchema = z.object({
     RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(100),
 
     // Shipping
-    FREE_SHIPPING_THRESHOLD: z.coerce.number().default(500),
-    DEFAULT_SHIPPING_COST: z.coerce.number().default(15),
-    EXPRESS_SHIPPING_COST: z.coerce.number().default(35),
+    FREE_SHIPPING_THRESHOLD: z.coerce.number().default(800000),
+    DEFAULT_SHIPPING_COST: z.coerce.number().default(15000),
+    EXPRESS_SHIPPING_COST: z.coerce.number().default(35000),
 
     // Admin
     ADMIN_EMAIL: z.string().default('admin@triapextrading.com'),

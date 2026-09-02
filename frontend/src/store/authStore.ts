@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import api from '@/lib/api'
 import type { User } from '@/types'
+import { useCartStore } from './cartStore'
 
 interface AuthStore {
     user: User | null
@@ -45,6 +46,8 @@ export const useAuthStore = create<AuthStore>()(
                 try { await api.post('/auth/logout') } catch { }
                 localStorage.removeItem('accessToken')
                 set({ user: null, accessToken: null })
+                // Clear cart items so stale IDs don't cause 401 errors on next visit
+                useCartStore.getState().clearCartLocally()
             },
 
             fetchUser: async () => {

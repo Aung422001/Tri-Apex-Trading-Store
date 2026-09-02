@@ -15,10 +15,9 @@
         "declaration": false,
         "declarationMap": false,
         "sourceMap": true,
-        "baseUrl": "./src",
         "paths": {
             "@/*": [
-                "./*"
+                "./src/*"
             ]
         },
         "typeRoots": [

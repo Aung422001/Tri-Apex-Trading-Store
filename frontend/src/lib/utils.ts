@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPrice(price: number): string {
-    return `MMK ${price.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    return `MMK ${price.toLocaleString('en-MM', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 export function slugify(text: string): string {

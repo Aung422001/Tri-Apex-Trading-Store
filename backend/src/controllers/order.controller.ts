@@ -53,6 +53,13 @@ export class OrderController {
             sendSuccess(res, order)
         } catch (err) { next(err) }
     }
+
+    async track(req: Request, res: Response, next: NextFunction) {
+        try {
+            const order = await orderService.trackOrder(req.params.orderNumber)
+            sendSuccess(res, order)
+        } catch (err) { next(err) }
+    }
 }
 
 export const orderController = new OrderController()

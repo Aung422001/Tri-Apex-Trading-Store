@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:5000/api/v1/products)",
+      "Bash(curl -s http://localhost:5000/api/v1/categories)",
+      "Bash(curl -s http://localhost:5000/api/v1/auth/login -X POST -H \"Content-Type: application/json\" -d '{\"email\":\"admin@triapextrading.com\",\"password\":\"ChangeThisPassword123!\"}')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(curl -s \"http://localhost:5000/api/v1/products?page=1&limit=12&sort=newest\")",
+      "Bash(curl -s http://localhost:5000/health)",
+      "Bash(pnpm dev *)",
+      "Bash(echo \"Frontend PID: $!\")",
+      "Bash(sleep 10 && cat /tmp/backend.log)",
+      "Read(//tmp/**)",
+      "Bash(cat /tmp/frontend.log)",
+      "Bash(start chrome *)",
+      "Bash(cat /tmp/backend.log | tail -20)"
+    ]
+  }
+}

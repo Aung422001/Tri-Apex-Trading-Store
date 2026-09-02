@@ -23,7 +23,8 @@ export default function LoginPage() {
             toast.success('Welcome back!')
             router.push('/dashboard')
         } catch (err: any) {
-            toast.error(err.response?.data?.error || 'Invalid email or password')
+            const msg = err.response?.data?.error || err.message || 'Invalid email or password'
+            toast.error(msg)
         } finally {
             setLoading(false)
         }
@@ -102,14 +103,42 @@ export default function LoginPage() {
                         <div className="grid grid-cols-2 gap-2">
                             <button
                                 type="button"
-                                onClick={() => { setEmail('admin@triapextrading.com'); setPassword('ChangeThisPassword123!') }}
+                                onClick={async () => { 
+                                    setEmail('admin@triapextrading.com'); 
+                                    setPassword('ChangeThisPassword123!');
+                                    try {
+                                        setLoading(true);
+                                        await login('admin@triapextrading.com', 'ChangeThisPassword123!');
+                                        toast.success('Welcome back!');
+                                        router.push('/dashboard');
+                                    } catch (err: any) {
+                                        const msg = err.response?.data?.error || err.message || 'Invalid email or password';
+                                        toast.error(msg);
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }}
                                 className="text-xs bg-gray-50 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
                             >
                                 👑 Admin
                             </button>
                             <button
                                 type="button"
-                                onClick={() => { setEmail('demo@triapextrading.com'); setPassword('User12345!') }}
+                                onClick={async () => { 
+                                    setEmail('demo@triapextrading.com'); 
+                                    setPassword('User12345!');
+                                    try {
+                                        setLoading(true);
+                                        await login('demo@triapextrading.com', 'User12345!');
+                                        toast.success('Welcome back!');
+                                        router.push('/dashboard');
+                                    } catch (err: any) {
+                                        const msg = err.response?.data?.error || err.message || 'Invalid email or password';
+                                        toast.error(msg);
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }}
                                 className="text-xs bg-gray-50 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
                             >
                                 👤 Demo User
