@@ -5,17 +5,28 @@
 #   https://triapextradinggroupmm.com       → triapex-web  (frontend)
 #   https://www.triapextradinggroupmm.com   → triapex-web  (redirects to apex)
 #   https://api.triapextradinggroupmm.com   → triapex-api  (backend)
+#
+# Everything here is on Render's FREE tier. Two consequences:
+#   1. Free services sleep after 15 minutes idle; the next request takes
+#      ~30s to wake them.
+#   2. Render removes free Postgres databases after 30 days. Upgrade the
+#      database before then, or you lose the data in it.
+
+databases:
+  - name: triapex-db
+    databaseName: triapex
+    user: triapex
+    plan: free
+    region: singapore
 
 services:
   # ─────────────────────────────────────────────────────────
-  # Backend API (Express + Prisma + SQLite on a persistent disk)
+  # Backend API (Express + Prisma + Postgres)
   # ─────────────────────────────────────────────────────────
   - type: web
     name: triapex-api
     runtime: node
-    # A persistent disk is NOT available on the free plan. Starter is the
-    # minimum. The disk also pins this service to a single instance.
-    plan: starter
+    plan: free
     region: singapore
     branch: master
 
@@ -32,17 +43,14 @@ services:
     startCommand: pnpm --filter backend start:prod
     healthCheckPath: /health
 
-    # The SQLite file lives here so it survives deploys and restarts.
-    disk:
-      name: triapex-sqlite
-      mountPath: /var/data
-      sizeGB: 1
-
     envVars:
       - key: NODE_ENV
         value: production
+      # Wired automatically from the database above — never paste it by hand.
       - key: DATABASE_URL
-        value: file:/var/data/prod.db
+        fromDatabase:
+          name: triapex-db
+          property: connectionString
       - key: API_PREFIX
         value: /api/v1
 
@@ -54,8 +62,8 @@ services:
       - key: CORS_ORIGIN
         value: https://triapextradinggroupmm.com,https://www.triapextradinggroupmm.com
 
-      # Chromium is ~150MB and won't run reliably on a 512MB Starter instance,
-      # so the AI price-comparison scraper is disabled in production.
+      # Chromium is ~150MB and won't run in 512MB of RAM, so the AI
+      # price-comparison scraper is disabled in production.
       - key: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
         value: "1"
 
