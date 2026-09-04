@@ -37,13 +37,20 @@ services:
     # directory — running it from the repo root leaves the stub client in place
     # and tsc then fails on every generated Prisma type.
     buildCommand: >-
-      corepack enable &&
       pnpm install --frozen-lockfile &&
       pnpm --filter backend build
     startCommand: pnpm --filter backend start:prod
     healthCheckPath: /health
 
     envVars:
+      # Pin the toolchain. engines.node is ">=18", which Render resolved to
+      # Node 26 — far newer than Next 14.1 / Prisma 5.22 were built against.
+      # pnpm 8 matches lockfileVersion 6.0; pnpm 9+ rejects that lockfile
+      # under --frozen-lockfile.
+      - key: NODE_VERSION
+        value: 22.17.1
+      - key: PNPM_VERSION
+        value: 8.15.0
       - key: NODE_ENV
         value: production
       # Wired automatically from the database above — never paste it by hand.
@@ -117,12 +124,19 @@ services:
       - www.triapextradinggroupmm.com
 
     buildCommand: >-
-      corepack enable &&
       pnpm install --frozen-lockfile &&
       pnpm --filter frontend build
     startCommand: pnpm --filter frontend start
 
     envVars:
+      # Pin the toolchain. engines.node is ">=18", which Render resolved to
+      # Node 26 — far newer than Next 14.1 / Prisma 5.22 were built against.
+      # pnpm 8 matches lockfileVersion 6.0; pnpm 9+ rejects that lockfile
+      # under --frozen-lockfile.
+      - key: NODE_VERSION
+        value: 22.17.1
+      - key: PNPM_VERSION
+        value: 8.15.0
       - key: NODE_ENV
         value: production
       # NEXT_PUBLIC_* values are baked into the JS bundle at BUILD time, so
