@@ -52,6 +52,11 @@ services:
       # under --frozen-lockfile.
       - key: NODE_VERSION
         value: 22.17.1
+      # @prisma/client's postinstall auto-runs generate and only looks in the
+      # default schema locations; ours is at backend/src/prisma. Our own
+      # backend postinstall/build runs generate explicitly with the right path.
+      - key: PRISMA_SKIP_POSTINSTALL_GENERATE
+        value: "true"
       - key: PNPM_VERSION
         value: 8.15.0
       - key: NODE_ENV
@@ -141,6 +146,11 @@ services:
       # under --frozen-lockfile.
       - key: NODE_VERSION
         value: 22.17.1
+      # @prisma/client's postinstall auto-runs generate and only looks in the
+      # default schema locations; ours is at backend/src/prisma. Our own
+      # backend postinstall/build runs generate explicitly with the right path.
+      - key: PRISMA_SKIP_POSTINSTALL_GENERATE
+        value: "true"
       - key: PNPM_VERSION
         value: 8.15.0
       - key: NODE_ENV
