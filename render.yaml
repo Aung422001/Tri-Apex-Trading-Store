@@ -36,8 +36,11 @@ services:
     # backend's build script runs `prisma generate` itself, from the backend
     # directory — running it from the repo root leaves the stub client in place
     # and tsc then fails on every generated Prisma type.
+    # --prod=false is required: NODE_ENV=production below makes pnpm skip
+    # devDependencies, and typescript, prisma and the type packages all live
+    # there. prisma and ts-node are also needed at RUNTIME by start:prod.
     buildCommand: >-
-      pnpm install --frozen-lockfile &&
+      pnpm install --frozen-lockfile --prod=false &&
       pnpm --filter backend build
     startCommand: pnpm --filter backend start:prod
     healthCheckPath: /health
@@ -123,8 +126,11 @@ services:
       - triapextradinggroupmm.com
       - www.triapextradinggroupmm.com
 
+    # --prod=false is required: NODE_ENV=production below makes pnpm skip
+    # devDependencies, and typescript, prisma and the type packages all live
+    # there. prisma and ts-node are also needed at RUNTIME by start:prod.
     buildCommand: >-
-      pnpm install --frozen-lockfile &&
+      pnpm install --frozen-lockfile --prod=false &&
       pnpm --filter frontend build
     startCommand: pnpm --filter frontend start
 
