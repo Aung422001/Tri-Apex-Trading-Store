@@ -6,6 +6,15 @@ import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, User, Package } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
+import { apiErrorMessage } from '@/lib/utils'
+
+// Same rules as registerSchema in backend/src/schemas/auth.schema.ts
+function passwordProblem(password: string): string | null {
+    if (password.length < 8) return 'Password must be at least 8 characters'
+    if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter'
+    if (!/[0-9]/.test(password)) return 'Password must contain at least one number'
+    return null
+}
 
 export default function RegisterPage() {
     const [name, setName] = useState('')
@@ -18,13 +27,18 @@ export default function RegisterPage() {
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
+        const problem = passwordProblem(password)
+        if (problem) {
+            toast.error(problem)
+            return
+        }
         try {
             setLoading(true)
             await register(name, email, password)
             toast.success('Account created! Welcome to Triapex!')
             router.push('/dashboard')
         } catch (err: any) {
-            toast.error(err.response?.data?.error || 'Registration failed')
+            toast.error(apiErrorMessage(err, 'Registration failed'))
         } finally {
             setLoading(false)
         }
