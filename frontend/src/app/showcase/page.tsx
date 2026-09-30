@@ -107,7 +107,7 @@ export default function ShowcasePage() {
                 <div className="absolute inset-0 bg-grain pointer-events-none" />
                 <div className="absolute top-0 right-0 w-[55%] h-full bg-navy hidden md:block" style={{ clipPath: 'polygon(25% 0, 100% 0, 100% 100%, 0 100%)' }} />
 
-                <div className="relative max-w-7xl mx-auto px-4 pt-32 pb-20 md:pt-40 md:pb-28 grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
+                <div className="relative max-w-7xl mx-auto px-4 pt-20 pb-20 md:pt-28 md:pb-28 grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
                     <div className="animate-slide-up-fade">
                         <div className="inline-flex items-center gap-2 border border-orange/60 text-orange font-mono text-label px-3 py-2 mb-8">
                             <span className="w-2 h-2 bg-orange" /> Portfolio · Case Study

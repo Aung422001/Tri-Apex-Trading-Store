@@ -5,6 +5,7 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import AIChatWidget from '@/components/shared/AIChatWidget'
 import CartDrawer from '@/components/shared/CartDrawer'
+import StoreChrome from '@/components/layout/StoreChrome'
 import { Toaster } from 'react-hot-toast'
 
 const barlowCondensed = Barlow_Condensed({
@@ -59,11 +60,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         error: { iconTheme: { primary: '#EF4444', secondary: '#fff' } },
                     }}
                 />
-                <Navbar />
+                <StoreChrome><Navbar /></StoreChrome>
                 <main className="flex-1">{children}</main>
-                <Footer />
-                <CartDrawer />
-                <AIChatWidget />
+                <StoreChrome>
+                    <Footer />
+                    <CartDrawer />
+                    <AIChatWidget />
+                </StoreChrome>
             </body>
         </html>
     )
