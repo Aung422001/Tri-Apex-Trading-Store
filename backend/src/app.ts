@@ -11,6 +11,11 @@ import { apiLimiter } from './middleware/rateLimiter'
 const app = express()
 app.disable('x-powered-by')
 
+// Render (and most hosts) put one proxy in front of the app. Trust it so
+// req.ip is the visitor's address from X-Forwarded-For; otherwise every
+// visitor shares the proxy's IP and one rate-limit bucket for the whole site.
+app.set('trust proxy', 1)
+
 // Security
 app.use(helmet())
 app.use(cors({
