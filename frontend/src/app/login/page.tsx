@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, Package } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import toast from 'react-hot-toast'
+import { apiErrorMessage } from '@/lib/api'
 
 export default function LoginPage() {
     const [email, setEmail] = useState('')
@@ -23,7 +24,7 @@ export default function LoginPage() {
             toast.success('Welcome back!')
             router.push('/dashboard')
         } catch (err: any) {
-            const msg = err.response?.data?.error || err.message || 'Invalid email or password'
+            const msg = apiErrorMessage(err, 'Invalid email or password')
             toast.error(msg)
         } finally {
             setLoading(false)
@@ -112,7 +113,7 @@ export default function LoginPage() {
                                         toast.success('Welcome back!');
                                         router.push('/dashboard');
                                     } catch (err: any) {
-                                        const msg = err.response?.data?.error || err.message || 'Invalid email or password';
+                                        const msg = apiErrorMessage(err, 'Invalid email or password');
                                         toast.error(msg);
                                     } finally {
                                         setLoading(false);
@@ -133,7 +134,7 @@ export default function LoginPage() {
                                         toast.success('Welcome back!');
                                         router.push('/dashboard');
                                     } catch (err: any) {
-                                        const msg = err.response?.data?.error || err.message || 'Invalid email or password';
+                                        const msg = apiErrorMessage(err, 'Invalid email or password');
                                         toast.error(msg);
                                     } finally {
                                         setLoading(false);

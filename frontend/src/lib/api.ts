@@ -57,4 +57,23 @@ api.interceptors.response.use(
     }
 )
 
+// Turns an axios error into a message a customer can act on. Validation errors
+// carry the real reason in `details`; with no response at all the API was
+// unreachable (wrong NEXT_PUBLIC_API_URL, CORS, or a sleeping free instance).
+export function apiErrorMessage(err: any, fallback: string): string {
+    const data = err?.response?.data
+    if (Array.isArray(data?.details) && data.details.length) {
+        return data.details.map((d: { message: string }) => d.message).join('. ')
+    }
+    if (data?.error) return data.error
+    if (err?.response && err.response.status >= 500) {
+        return 'The server is starting up or unavailable. Please try again in a minute.'
+    }
+    if (err?.request && !err?.response) {
+        return "Can't reach the server. Check your connection and try again in a minute."
+    }
+    if (!err?.isAxiosError && err?.message) return err.message
+    return fallback
+}
+
 export default api
