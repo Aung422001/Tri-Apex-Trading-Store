@@ -102,7 +102,8 @@ export default function Footer() {
                 <div className="border-t border-white/10 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="font-mono text-white/40 text-xs uppercase tracking-widest">© {new Date().getFullYear()} Triapex Trading Group. All rights reserved.</p>
                     <div className="flex gap-8 text-white/40 text-xs font-bold uppercase tracking-wider">
-                        <Link href="/privacy" className="hover:text-white hover:underline transition-colors">Privacy Policy</Link>
+                        <Link href="/showcase" className="hover:text-white hover:underline transition-colors">Project Showcase</Link>
+                        <Link href="/privacy"className="hover:text-white hover:underline transition-colors">Privacy Policy</Link>
                         <Link href="/terms" className="hover:text-white hover:underline transition-colors">Terms of Service</Link>
                     </div>
                 </div>
