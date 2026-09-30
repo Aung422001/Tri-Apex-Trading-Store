@@ -11,6 +11,13 @@ import { apiLimiter } from './middleware/rateLimiter'
 const app = express()
 app.disable('x-powered-by')
 
+// Render terminates TLS in front of the app. Without this, req.ip is the
+// proxy's address, so the rate limiter puts every visitor in one bucket and
+// the whole site gets 429s after 100 requests.
+if (env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1)
+}
+
 // Security
 app.use(helmet())
 app.use(cors({

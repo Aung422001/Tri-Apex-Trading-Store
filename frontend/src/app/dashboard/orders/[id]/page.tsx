@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Package, ArrowLeft, MapPin, Truck, CheckCircle2, Clock, XCircle, AlertCircle } from 'lucide-react'
-import { useAuthStore } from '@/store/authStore'
+import { useAuthStore, useAuthHydrated } from '@/store/authStore'
 import api from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
 
@@ -20,6 +20,7 @@ const steps = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED']
 
 export default function OrderDetailPage() {
     const user = useAuthStore((s) => s.user)
+    const hydrated = useAuthHydrated()
     const router = useRouter()
     const params = useParams()
     const orderId = params?.id as string
@@ -30,6 +31,7 @@ export default function OrderDetailPage() {
     const [cancelling, setCancelling] = useState(false)
 
     useEffect(() => {
+        if (!hydrated) return
         if (!user) { router.push('/login'); return }
         if (!orderId) return
         async function fetchOrder() {
@@ -44,7 +46,7 @@ export default function OrderDetailPage() {
             }
         }
         fetchOrder()
-    }, [user, router, orderId])
+    }, [user, router, orderId, hydrated])
 
     const [confirmCancel, setConfirmCancel] = useState(false)
 
