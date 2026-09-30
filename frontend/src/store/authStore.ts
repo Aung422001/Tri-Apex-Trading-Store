@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import api from '@/lib/api'
@@ -74,3 +75,15 @@ export const useAuthStore = create<AuthStore>()(
         }
     )
 )
+
+// During React hydration zustand renders the store's initial state (user: null),
+// even when localStorage holds a session. Pages that redirect guests must wait
+// for this before checking `user`, or a reload always bounces to /login.
+export function useAuthHydrated() {
+    const [hydrated, setHydrated] = useState(false)
+    useEffect(() => {
+        if (useAuthStore.persist.hasHydrated()) setHydrated(true)
+        return useAuthStore.persist.onFinishHydration(() => setHydrated(true))
+    }, [])
+    return hydrated
+}

@@ -72,6 +72,19 @@ take up to 48 hours. TLS certificates are issued automatically — don't configu
 HTTPS yourself. Behind Cloudflare, set the records to **DNS only** (grey cloud)
 until Render has verified them.
 
+## 4b. Until DNS resolves: use the onrender.com URLs
+
+`render.yaml` currently points every URL setting at the default hosts, so the
+whole store works before DNS exists:
+
+- Store: `https://triapex-web.onrender.com`
+- API: `https://triapex-api.onrender.com/health`
+
+If Render gave a service a suffixed host (for example
+`triapex-web-ab12.onrender.com` because the name was taken), put that host in the
+URL env vars in `render.yaml`. Once the custom domain shows **Verified** in Render,
+switch the four URL env vars back to it (see "Changing the domain later").
+
 ## 5. Verify
 
 ```bash
@@ -129,6 +142,13 @@ Render → `triapex-db` → **Connect** → copy the External Database URL, then
 pg_dump "<external-database-url>" > triapex-backup.sql
 ```
 
+## Stray Vercel project
+
+A Vercel project (`tri-apex-trading-store-backend`, root `backend/`) is connected
+to this repo and posts a failing "Vercel" status on every commit. The site does
+not run on Vercel; disconnect the repo in Vercel → that project → **Settings →
+Git**, or delete the project. It doesn't affect Render.
+
 ## Troubleshooting
 
 | Symptom | Cause |
@@ -137,6 +157,7 @@ pg_dump "<external-database-url>" > triapex-backup.sql
 | Site loads, no products, CSP errors in console | `NEXT_PUBLIC_API_URL` wrong, or frontend not rebuilt with cache cleared |
 | CORS errors | `CORS_ORIGIN` must list both apex and www exactly |
 | Custom domain stuck "unverified" | DNS not propagated, or Cloudflare proxy is on |
+| Everyone gets 429 "Too many requests" | Express must trust Render's proxy (`trust proxy` in `backend/src/app.ts`) |
 | First request takes 30s | Free instance waking from sleep — expected |
 | Everything empty after ~30 days | Render deleted the free Postgres database |
 | Build fails on `pnpm install` | Lockfile out of sync — run `pnpm install` locally and commit `pnpm-lock.yaml` |

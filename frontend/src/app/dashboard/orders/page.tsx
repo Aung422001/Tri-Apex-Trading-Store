@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Package, ChevronRight, ShoppingBag } from 'lucide-react'
-import { useAuthStore } from '@/store/authStore'
+import { useAuthStore, useAuthHydrated } from '@/store/authStore'
 import api from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
 
@@ -18,12 +18,14 @@ const statusColor: Record<string, string> = {
 
 export default function OrdersPage() {
     const user = useAuthStore((s) => s.user)
+    const hydrated = useAuthHydrated()
     const router = useRouter()
     const [orders, setOrders] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
     useEffect(() => {
+        if (!hydrated) return
         if (!user) { router.push('/login'); return }
         async function fetchOrders() {
             try {
@@ -39,7 +41,7 @@ export default function OrdersPage() {
             }
         }
         fetchOrders()
-    }, [user, router])
+    }, [user, router, hydrated])
 
     if (!user) return null
 
